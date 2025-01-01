@@ -15,6 +15,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import model.services.DepartmentService;
 
 public class MainViewController implements Initializable {
 	
@@ -57,6 +58,28 @@ public class MainViewController implements Initializable {
 			mainVBox.getChildren().add(mainMenu); // Adiciona o menu à janela atual (que é uma reciclagem da primeira, ou seja, a mesma janela)
 			mainVBox.getChildren().addAll(newVBox.getChildren()); //Adiciona o conteúdo da nova janela à janela atual
 			
+		}catch(IOException e) {
+			Alerts.showAlert("IO Exception", "Error Loading View", e.getMessage(), AlertType.ERROR);
+		}
+		
+	}
+	
+	public synchronized void loadView2(String absoluteName) { //Para aplicações multi-threads (como é o caso) a assinatura syncronized permite que a função seja parte de apenas um encadeamento por vez para evitar problemas com a inconsistência dos dados compartilhados pelas threads na função (Uma vez que a função manipula dados e pode ser chamada simultaneamente)
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+			VBox newVBox = loader.load();
+			
+			Scene mainScene = Main.getMainScene(); // Aponta para a cena que compõe o palco
+			VBox mainVBox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent(); //Pega a referência do VBox da primeira janela
+			
+			Node mainMenu = mainVBox.getChildren().get(0); //Pega a barra de menu da primeira janela
+			mainVBox.getChildren().clear(); // Apaga todo o conteúdo da vbox da primeira janela (Inclusive a barra de menu)
+			mainVBox.getChildren().add(mainMenu); // Adiciona o menu à janela atual (que é uma reciclagem da primeira, ou seja, a mesma janela)
+			mainVBox.getChildren().addAll(newVBox.getChildren()); //Adiciona o conteúdo da nova janela à janela atual
+			
+			DepartmentListController controller = loader.getController();
+			controller.setDepartmentService(new DepartmentService());
+			controller.updateTableView();
 		}catch(IOException e) {
 			Alerts.showAlert("IO Exception", "Error Loading View", e.getMessage(), AlertType.ERROR);
 		}
