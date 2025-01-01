@@ -31,7 +31,7 @@ public class MainViewController implements Initializable {
 	}
 	@FXML
 	public void onMenuItemDepartmentAction() {
-		System.out.println("onMenuItemDepartmentAction");
+		loadView("/gui/DepartmentList.fxml");
 	}
 	@FXML
 	public void onMenuItemAboutAction() {
@@ -44,7 +44,7 @@ public class MainViewController implements Initializable {
 		
 	}
 	
-	public void loadView(String absoluteName) {
+	public synchronized void loadView(String absoluteName) { //Para aplicações multi-threads (como é o caso) a assinatura syncronized permite que a função seja parte de apenas um encadeamento por vez para evitar problemas com a inconsistência dos dados compartilhados pelas threads na função (Uma vez que a função manipula dados e pode ser chamada simultaneamente)
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			VBox newVBox = loader.load();
